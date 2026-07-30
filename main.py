@@ -1,35 +1,66 @@
-from datetime import datetime
+import os
+import smtplib
 import pytz
 import nepali_datetime
 
-# India Time
-india_timezone = pytz.timezone("Asia/Kolkata")
-india_now = datetime.now(india_timezone)
-
-# Nepal Time
-nepal_now = nepali_datetime.date.today()
+from datetime import datetime
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # India Date
-india_date = india_now.strftime("%A, %d %B %Y")
+india = datetime.now(pytz.timezone("Asia/Kolkata"))
+
+india_date = india.strftime("%A, %d %B %Y")
+day = india.strftime("%A")
 
 # Nepal Date
-nepal_date = nepal_now.strftime("%K %d, %N %Y")
+nepal = nepali_datetime.date.today()
 
-# Day
-day = india_now.strftime("%A")
+nepal_date = nepal.strftime("%K %d, %N %Y")
 
-print("Today's Date")
+# Email
+sender = os.environ["EMAIL_ADDRESS"]
+password = os.environ["EMAIL_PASSWORD"]
+receivers = os.environ["RECEIVER_EMAIL"].split(",")
 
-print("---------------------------")
+subject = "🌅 Today's India & Nepal Date"
 
-print("🇳🇵 Nepal (BS)")
-print(nepal_date)
+body = f"""
+Good Morning!
 
-print()
+🇳🇵 Nepal (BS)
 
-print("🇮🇳 India (AD)")
-print(india_date)
+{nepal_date}
 
-print()
+🇮🇳 India (AD)
 
-print("Day:", day)
+{india_date}
+
+📅 Day
+
+{day}
+
+Have a wonderful day!
+"""
+
+message = MIMEMultipart()
+message["From"] = sender
+message["To"] = ", ".join(receivers)
+message["Subject"] = subject
+
+message.attach(MIMEText(body, "plain"))
+
+server = smtplib.SMTP("smtp.gmail.com", 587)
+server.starttls()
+
+server.login(sender, password)
+
+server.sendmail(
+    sender,
+    receivers,
+    message.as_string()
+)
+
+server.quit()
+
+print("Email sent successfully.")
