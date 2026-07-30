@@ -3,23 +3,27 @@ name: Daily Date Notifier
 on:
   workflow_dispatch:
 
+  schedule:
+    - cron: "15 13 * * *"
+
 jobs:
-  test-date:
+  send-email:
+
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    env:
+      EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install Libraries
-        run: |
-          pip install -r requirements.txt
+      - run: pip install -r requirements.txt
 
-      - name: Run Script
-        run: |
-          python main.py
+      - run: python main.py
