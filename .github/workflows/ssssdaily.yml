@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "15 9 * * *"
+  - cron: "15 22 * * *"
 
 jobs:
   send-email:
